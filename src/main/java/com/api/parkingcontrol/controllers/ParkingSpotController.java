@@ -5,6 +5,10 @@ import com.api.parkingcontrol.models.ParkingSpotModel;
 import com.api.parkingcontrol.services.ParkingSpotService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,8 +45,8 @@ public class ParkingSpotController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(service.save(parkingSpotModel));
 	}
 	@GetMapping
-	public ResponseEntity<List<ParkingSpotModel>> getAllParkingSpots(){
-		return ResponseEntity.status(HttpStatus.OK).body(service.findAll());
+	public ResponseEntity<Page<ParkingSpotModel>> getAllParkingSpots(@PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable){
+		return ResponseEntity.status(HttpStatus.OK).body(service.findAll(pageable));
 	}
 	@GetMapping("/{id}")
 	public ResponseEntity<Object> getOneParkingSpot(@PathVariable UUID id){
@@ -69,6 +73,7 @@ public class ParkingSpotController {
 		}
 		var parkingSpotModel = new ParkingSpotModel();
 		BeanUtils.copyProperties(parkingSpotDTO,parkingSpotModel);
+		parkingSpotModel.setId(parkingSpotModelOptional.get().getId());
 		parkingSpotModel.setRegistrationDate(parkingSpotModelOptional.get().getRegistrationDate());
 		return ResponseEntity.status(HttpStatus.OK).body(service.save(parkingSpotModel));
 	}
